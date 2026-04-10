@@ -4,8 +4,8 @@ namespace Data
 {
     public interface IBall : INotifyPropertyChanged
     {
-        double X { get; }
-        double Y { get; }
+        double X { get; set; }
+        double Y { get; set; }
         double Diameter { get; }
     }
 
