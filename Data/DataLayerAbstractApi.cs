@@ -7,6 +7,8 @@ namespace Data
         double X { get; set; }
         double Y { get; set; }
         double Diameter { get; }
+        double VelocityX { get; set; }
+        double VelocityY { get; set; }
     }
 
     public abstract class DataLayerAbstractApi

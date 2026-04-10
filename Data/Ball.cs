@@ -9,6 +9,8 @@ namespace Data
         private double _y = y;
 
         public double Diameter { get; } = diameter;
+        public double VelocityX { get; set; }
+        public double VelocityY { get; set; }
         public event PropertyChangedEventHandler? PropertyChanged;
 
         public double X
