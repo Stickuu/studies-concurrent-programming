@@ -15,7 +15,8 @@
     <DockPanel>
         <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Spacing="15" Margin="20,10">
             <TextBlock Text="Number of balls:" VerticalAlignment="Center" FontWeight="Bold" />
-            <TextBlock Text="{Binding BallsCountToCreate}" Width="60" VerticalAlignment="Center" />
+            
+            <NumericUpDown Value="{Binding BallsCountToCreate}" Minimum="2" Width="120" VerticalAlignment="Center" FormatString="0" />
 
             <Button Content="Start Simulation" Command="{Binding StartSimulationCommand}" Background="#28a745" Foreground="White" />
             <Button Content="Stop Simulation" Command="{Binding StopSimulationCommand}" Background="#dc3545" Foreground="White" />
