@@ -58,32 +58,11 @@ namespace Logic
             {
                 foreach (var ball in _dataApi.GetBalls())
                 {
-                    MoveBall(ball);
+                    ball.Move(_dataApi.BoardWidth, _dataApi.BoardHeight);
                 }
 
                 await Task.Delay(16, token);
             }
-        }
-
-        private void MoveBall(IBall ball)
-        {
-            var newX = ball.X + ball.VelocityX;
-            var newY = ball.Y + ball.VelocityY;
-
-            if (newX <= 0 || newX >= _dataApi.BoardWidth - ball.Diameter)
-            {
-                ball.VelocityX = -ball.VelocityX;
-                newX = ball.X + ball.VelocityX;
-            }
-
-            if (newY <= 0 || newY >= _dataApi.BoardHeight - ball.Diameter)
-            {
-                ball.VelocityY = -ball.VelocityY;
-                newY = ball.Y + ball.VelocityY;
-            }
-
-            ball.X = newX;
-            ball.Y = newY;
         }
     }
 }

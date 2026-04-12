@@ -36,6 +36,27 @@ namespace Data
             }
         }
 
+        public void Move(int boardWidth, int boardHeight)
+        {
+            var newX = X + VelocityX;
+            var newY = Y + VelocityY;
+
+            if (newX <= 0 || newX >= boardWidth - Diameter)
+            {
+                VelocityX = -VelocityX;
+                newX = X + VelocityX;
+            }
+            
+            if (newY <= 0 || newY >= boardHeight - Diameter)
+            {
+                VelocityY = -VelocityY;
+                newY = Y + VelocityY;
+            }
+
+            X = newX;
+            Y = newY;
+        }
+
         private void OnPropertyChanged([CallerMemberName] string? propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));

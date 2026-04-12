@@ -9,6 +9,8 @@ namespace Data
         double Diameter { get; }
         double VelocityX { get; set; }
         double VelocityY { get; set; }
+
+        void Move(int boardWidth, int boardHeight);
     }
 
     public abstract class DataLayerAbstractApi
