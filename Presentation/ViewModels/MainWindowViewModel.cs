@@ -17,7 +17,7 @@ public class MainWindowViewModel : ViewModelBase
 
     public MainWindowViewModel()
     {
-        _simulationModel = new SimulationModel();
+        _simulationModel = new SimulationModel(800.0, 400.0);
 
         StartSimulationCommand = new RelayCommand(StartSimulation, () => !_isSimulationRunning);
         StopSimulationCommand = new RelayCommand(StopSimulation, () => _isSimulationRunning);

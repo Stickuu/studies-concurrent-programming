@@ -10,6 +10,9 @@ namespace Logic
         private CancellationTokenSource? _cancellationTokenSource;
         private readonly Random _random = new();
 
+        public override int BoardWidth => _dataApi.BoardWidth;
+        public override int BoardHeight => _dataApi.BoardHeight;
+
         public new static LogicLayerApi GetInstance(DataLayerAbstractApi dataApi)
         {
             _instance ??= new LogicLayerApi(dataApi);

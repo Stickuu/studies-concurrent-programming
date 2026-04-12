@@ -4,6 +4,9 @@ namespace Logic
 {
     public abstract class LogicLayerAbstractApi
     {
+        public abstract int BoardWidth { get; }
+        public abstract int BoardHeight { get; }
+        
         public abstract void CreateBalls(int count);
         public abstract void RemoveAllBalls();
         public abstract void StartSimulation();
