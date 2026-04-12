@@ -9,7 +9,7 @@ public class MainWindowViewModel : ViewModelBase
 {
     private readonly SimulationModel _simulationModel;
     private int _ballsCountToCreate = 5;
-    private bool _isSimulationRunning = false;
+    private bool _isSimulationRunning;
 
     public ObservableCollection<BallModel> Balls { get; } = [];
     public IRelayCommand StartSimulationCommand { get; }
@@ -45,15 +45,19 @@ public class MainWindowViewModel : ViewModelBase
             Balls.Add(ballModel);
         }
 
-        _isSimulationRunning = true;
+        ChangeSimulationRunningStatus(true);
     }
 
     private void StopSimulation()
     {
         _simulationModel.Stop();
-        _isSimulationRunning = false;
+        ChangeSimulationRunningStatus(false);
+    }
 
+    private void ChangeSimulationRunningStatus(bool status)
+    {
+        _isSimulationRunning = status;
         StartSimulationCommand.NotifyCanExecuteChanged();
         StopSimulationCommand.NotifyCanExecuteChanged();
-    } 
+    }
 }

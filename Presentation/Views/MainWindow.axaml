@@ -1,13 +1,10 @@
 <Window xmlns="https://github.com/avaloniaui"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:vm="using:Presentation.ViewModels"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
-        x:Class="Presentation.Views.MainWindow"
-        x:DataType="vm:MainWindowViewModel"
-        Icon="/Assets/avalonia-logo.ico"
-        Title="Presentation">
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:vm="using:Presentation.ViewModels"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:models="clr-namespace:Presentation.Models"
+    mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450" x:Class="Presentation.Views.MainWindow" x:DataType="vm:MainWindowViewModel" Icon="/Assets/avalonia-logo.ico" Title="Concurrent programing" Width="900" Height="500">
 
     <Design.DataContext>
         <!-- This only sets the DataContext for the previewer in an IDE,
@@ -15,6 +12,38 @@
         <vm:MainWindowViewModel/>
     </Design.DataContext>
 
-    <TextBlock Text="{Binding Greeting}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+    <DockPanel>
+        <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Spacing="15" Margin="20,10">
+            <TextBlock Text="Number of balls:" VerticalAlignment="Center" FontWeight="Bold" />
+            <TextBlock Text="{Binding BallsCountToCreate}" Width="60" VerticalAlignment="Center" />
+
+            <Button Content="Start Simulation" Command="{Binding StartSimulationCommand}" Background="#28a745" Foreground="White" />
+            <Button Content="Stop Simulation" Command="{Binding StopSimulationCommand}" Background="#dc3545" Foreground="White" />
+        </StackPanel>
+
+        <Border BorderBrush="SaddleBrown" BorderThickness="10" Background="DarkGreen" Width="800" Height="400" HorizontalAlignment="Center" VerticalAlignment="Center">
+            <ItemsControl ItemsSource="{Binding Balls}">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <Canvas Width="800" Height="400" ClipToBounds="True" />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+
+                <ItemsControl.Styles>
+                    <Style Selector="ItemsControl > ContentPresenter" x:DataType="models:BallModel">
+                        <Setter Property="Canvas.Left" Value="{Binding X}" />
+                        <Setter Property="Canvas.Top" Value="{Binding Y}" />
+                    </Style>
+                </ItemsControl.Styles>
+
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate x:DataType="models:BallModel">
+                        <Ellipse Fill="White" Width="{Binding Diameter}" Height="{Binding Diameter}" />
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </Border>
+
+    </DockPanel>
 
 </Window>
