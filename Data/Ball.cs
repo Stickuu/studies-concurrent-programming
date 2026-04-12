@@ -36,7 +36,7 @@ namespace Data
             }
         }
 
-        public void Move(int boardWidth, int boardHeight)
+        public void Move(double boardWidth, double boardHeight)
         {
             var newX = X + VelocityX;
             var newY = Y + VelocityY;

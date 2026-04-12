@@ -10,19 +10,19 @@ namespace Data
         double VelocityX { get; set; }
         double VelocityY { get; set; }
 
-        void Move(int boardWidth, int boardHeight);
+        void Move(double boardWidth, double boardHeight);
     }
 
     public abstract class DataLayerAbstractApi
     {
-        public abstract int BoardWidth { get; }
-        public abstract int BoardHeight { get; }
+        public abstract double BoardWidth { get; }
+        public abstract double BoardHeight { get; }
 
         public abstract IBall CreateBall();
         public abstract IEnumerable<IBall> GetBalls();
         public abstract void RemoveAllBalls();
 
-        public static DataLayerAbstractApi GetInstance(int boardWidth, int boardHeight)
+        public static DataLayerAbstractApi GetInstance(double boardWidth, double boardHeight)
         {
             return DataLayerApi.GetInstance(boardWidth, boardHeight);
         }

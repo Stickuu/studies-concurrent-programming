@@ -7,17 +7,17 @@ namespace Data
         private readonly List<IBall> _balls = [];
         private readonly Random _random = new();
 
-        public override int BoardWidth { get; }
-        public override int BoardHeight { get; }
+        public override double BoardWidth { get; }
+        public override double BoardHeight { get; }
 
-        public new static DataLayerApi GetInstance(int boardWidth, int boardHeight)
+        public new static DataLayerApi GetInstance(double boardWidth, double boardHeight)
         {
             _instance ??= new DataLayerApi(boardWidth, boardHeight);
 
             return _instance;
         }
         
-        private DataLayerApi(int boardWidth, int boardHeight)
+        private DataLayerApi(double boardWidth, double boardHeight)
         {
             BoardHeight = boardHeight;
             BoardWidth = boardWidth;

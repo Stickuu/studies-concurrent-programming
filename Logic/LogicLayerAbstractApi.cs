@@ -4,8 +4,8 @@ namespace Logic
 {
     public abstract class LogicLayerAbstractApi
     {
-        public abstract int BoardWidth { get; }
-        public abstract int BoardHeight { get; }
+        public abstract double BoardWidth { get; }
+        public abstract double BoardHeight { get; }
         
         public abstract void CreateBalls(int count);
         public abstract void RemoveAllBalls();
@@ -16,7 +16,7 @@ namespace Logic
 
         public static LogicLayerAbstractApi GetInstance(DataLayerAbstractApi? dataApi = null)
         {
-            DataLayerAbstractApi dataLayerAbstractApi = dataApi ?? DataLayerAbstractApi.GetInstance(800, 400);
+            var dataLayerAbstractApi = dataApi ?? DataLayerAbstractApi.GetInstance(800.0, 400.0);
 
             return LogicLayerApi.GetInstance(dataLayerAbstractApi);
         }
