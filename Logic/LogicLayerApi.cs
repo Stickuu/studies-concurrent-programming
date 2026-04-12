@@ -30,6 +30,11 @@ namespace Logic
             }
         }
 
+        public override void RemoveAllBalls()
+        {
+            _dataApi.RemoveAllBalls();
+        }
+
         public override IEnumerable<IBall> GetBalls()
         {
             return _dataApi.GetBalls();

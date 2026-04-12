@@ -5,6 +5,7 @@ namespace Logic
     public abstract class LogicLayerAbstractApi
     {
         public abstract void CreateBalls(int count);
+        public abstract void RemoveAllBalls();
         public abstract void StartSimulation();
         public abstract void StopSimulation();
 

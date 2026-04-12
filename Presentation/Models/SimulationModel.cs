@@ -15,6 +15,7 @@ namespace Presentation.Models
 
         public void Start(int ballsCount)
         {
+            _logicApi.RemoveAllBalls();
             _logicApi.CreateBalls(ballsCount);
             _logicApi.StartSimulation();
         }
