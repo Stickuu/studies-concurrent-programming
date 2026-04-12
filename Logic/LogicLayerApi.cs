@@ -8,7 +8,6 @@ namespace Logic
         
         private readonly DataLayerAbstractApi _dataApi;
         private CancellationTokenSource? _cancellationTokenSource;
-        private readonly Random _random = new();
 
         public override double BoardWidth => _dataApi.BoardWidth;
         public override double BoardHeight => _dataApi.BoardHeight;

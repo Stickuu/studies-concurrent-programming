@@ -28,10 +28,12 @@ namespace Data
             var diameter = 30;
             var x = _random.NextDouble() * (BoardWidth - diameter);
             var y = _random.NextDouble() * (BoardHeight - diameter);
-            var ball = new Ball(x, y, diameter)
+            var ball = new Ball(new Vector2(x, y), diameter)
             {
-                VelocityX = (_random.NextDouble() * 4) - 2,
-                VelocityY = (_random.NextDouble() * 4) - 2
+                Velocity = new Vector2(
+                    (_random.NextDouble() * 4) - 2,
+                    (_random.NextDouble() * 4) - 2
+                )
             };
             
             _balls.Add(ball);

@@ -8,8 +8,8 @@ namespace Presentation.Models
         private readonly IBall _ball;
         private readonly double _scale;
 
-        public double X => _ball.X;
-        public double Y => _ball.Y;
+        public double X => _ball.Position.X;
+        public double Y => _ball.Position.Y;
         public double Diameter => _ball.Diameter;
         public event PropertyChangedEventHandler? PropertyChanged;
 
@@ -18,10 +18,17 @@ namespace Presentation.Models
             _ball = ball;
             _scale = scale;
 
-            _ball.PropertyChanged += (sender, args) =>
-            {
-                PropertyChanged?.Invoke(this, args);
-            };
+            _ball.PropertyChanged += OnBallPropertyChanged;
         }
+
+        private void OnBallPropertyChanged(object? sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName != nameof(IBall.Position)) return;
+            
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(X)));
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Y)));
+        }
+            
+        
     }
 }

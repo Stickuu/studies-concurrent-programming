@@ -4,11 +4,9 @@ namespace Data
 {
     public interface IBall : INotifyPropertyChanged
     {
-        double X { get; set; }
-        double Y { get; set; }
+        Vector2 Position { get; set; }
+        Vector2 Velocity { get; set; }
         double Diameter { get; }
-        double VelocityX { get; set; }
-        double VelocityY { get; set; }
 
         void Move(double boardWidth, double boardHeight);
     }

@@ -3,58 +3,113 @@ using System.Runtime.CompilerServices;
 
 namespace Data
 {
-    internal sealed class Ball(double x, double y, double diameter) : IBall
+    internal sealed class Ball : IBall
     {
-        private double _x = x;
-        private double _y = y;
-
-        public double Diameter { get; } = diameter;
-        public double VelocityX { get; set; }
-        public double VelocityY { get; set; }
+        private Vector2 _position;
+        public double Diameter { get; }
+        public Vector2 Velocity { get; set; }
         public event PropertyChangedEventHandler? PropertyChanged;
 
-        public double X
+        public Ball(Vector2 position, double diameter)
         {
-            get => _x;
-            set
-            {
-                if (_x == value) return;
-                
-                _x = value;
-                OnPropertyChanged();
-            }
+            _position = position;
+            Diameter = diameter;
         }
-        
-        public double Y
+
+        public Vector2 Position
         {
-            get => _y;
+            get => _position;
             set
             {
-                if (_y == value) return;
-                _y = value;
+                if (_position == value) return;
+                
+                _position = value;
                 OnPropertyChanged();
+                
             }
         }
 
         public void Move(double boardWidth, double boardHeight)
         {
-            var newX = X + VelocityX;
-            var newY = Y + VelocityY;
+            var newPos = Position + Velocity;
+            bool hitWall = false;
 
-            if (newX <= 0 || newX >= boardWidth - Diameter)
+            if (newPos.X <= 0)
             {
-                VelocityX = -VelocityX;
-                newX = X + VelocityX;
+                newPos = new Vector2(0, newPos.Y);
+                hitWall = true;
+            } else if (newPos.X >= boardWidth - Diameter)
+            {
+                newPos = new Vector2(boardWidth - Diameter, newPos.Y);
+                hitWall = true;
+            }
+
+            if (newPos.Y <= 0)
+            {
+                newPos = new Vector2(newPos.X, 0);
+                hitWall = true;
+            } else if (newPos.Y >= boardHeight - Diameter)
+            {
+                newPos = new Vector2(newPos.X, boardHeight - Diameter);
+                hitWall = true;
+            }
+
+            if (hitWall)
+            {
+                Velocity = GenerateRandomVelocity(newPos, boardWidth, boardHeight);
+            }
+
+            Position = newPos;
+
+            // var newPos = Position + Velocity;
+            // var newVel = Velocity;
+            //
+            // if (newPos.X <= 0 || newPos.X >= boardWidth - Diameter)
+            // {
+            //     newVel = new Vector2(-Velocity.X, Velocity.Y);
+            //     newPos = new Vector2(Position.X + newVel.X, Position.Y);
+            // }
+            //
+            // if (newPos.Y <= 0 || newPos.Y >= boardHeight - Diameter)
+            // {
+            //     newVel = new Vector2(newVel.X, -Velocity.Y);
+            //     newPos = new Vector2(newPos.X, Position.Y + newVel.Y);
+            // }
+            //
+            // Velocity = newVel;
+            // Position = newPos;
+        }
+
+        private Vector2 GenerateRandomVelocity(Vector2 currentPosition, double boardWidth, double boardHeight)
+        {
+            var speedX = (Random.Shared.NextDouble() * 2.0) + 0.5;
+            var speedY = (Random.Shared.NextDouble() * 2.0) + 0.5;
+
+            // force right
+            if (currentPosition.X <= 0) speedX = Math.Abs(speedX);
+            else if (currentPosition.X >= boardWidth - Diameter)
+            {
+                // force left
+                speedX = -Math.Abs(speedX);
+            }
+            else
+            {
+                speedX = Random.Shared.NextDouble() > 0.5 ? speedX : -speedX;
             }
             
-            if (newY <= 0 || newY >= boardHeight - Diameter)
+            // force down
+            if (currentPosition.Y <= 0) speedY = Math.Abs(speedX);
+            else if (currentPosition.Y >= boardHeight - Diameter)
             {
-                VelocityY = -VelocityY;
-                newY = Y + VelocityY;
+                // force up
+                speedY = -Math.Abs(speedY);
+            }
+            else
+            {
+                speedY = Random.Shared.NextDouble() > 0.5 ? speedY : -speedY;
             }
 
-            X = newX;
-            Y = newY;
+            return new Vector2(speedX, speedY);
         }
 
         private void OnPropertyChanged([CallerMemberName] string? propertyName = null)
