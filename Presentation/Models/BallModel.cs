@@ -8,9 +8,9 @@ namespace Presentation.Models
         private readonly IBall _ball;
         private readonly double _scale;
 
-        public double X => _ball.Position.X;
-        public double Y => _ball.Position.Y;
-        public double Diameter => _ball.Diameter;
+        public double X => _ball.Position.X * _scale;
+        public double Y => _ball.Position.Y * _scale;
+        public double Diameter => _ball.Diameter * _scale;
         public event PropertyChangedEventHandler? PropertyChanged;
 
         public BallModel(IBall ball, double scale)

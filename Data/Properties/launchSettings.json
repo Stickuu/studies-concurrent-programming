@@ -1,0 +1,11 @@
+{
+  "profiles": {
+    "Data": {
+      "commandName": "Project"
+    },
+    "Profil 1": {
+      "commandName": "Project",
+      "workingDirectory": "C:\\Users\\veyro\\Documents\\GitHub\\studies-concurrent-programming\\Presentation"
+    }
+  }
+}
