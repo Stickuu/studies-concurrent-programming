@@ -58,11 +58,6 @@ namespace Logic
         {
             while (!token.IsCancellationRequested)
             {
-                foreach (var ball in _dataApi.GetBalls())
-                {
-                    UpdateBallPositionAndVelocity(ball);
-                }
-
                 await Task.Delay(16, token);
             }
         }

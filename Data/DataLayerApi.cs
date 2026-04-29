@@ -23,9 +23,14 @@ namespace Data
 
         public override IBall CreateBall()
         {
-            var x = _random.NextDouble() * (Board.Width - IBall.DIAMETER);
-            var y = _random.NextDouble() * (Board.Height - IBall.DIAMETER);
-            var ball = new Ball(new Vector2(x, y), IBall.DIAMETER)
+            var diameter = _random.Next(20, 50);
+            var radius = diameter / 2.0;
+            var mass = Math.PI * radius * radius;
+            
+            var x = _random.NextDouble() * (Board.Width - diameter);
+            var y = _random.NextDouble() * (Board.Height - diameter);
+            
+            var ball = new Ball(new Vector2(x, y), diameter, mass)
             {
                 Velocity = new Vector2(
                     (_random.NextDouble() * 4) - 2,
@@ -45,6 +50,10 @@ namespace Data
 
         public override void RemoveAllBalls()
         {
+            foreach (var ball in _balls)
+            {
+                ball.Dispose();
+            }
             _balls.Clear();
         }
     }
