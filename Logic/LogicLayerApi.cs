@@ -9,8 +9,8 @@ namespace Logic
         private readonly DataLayerAbstractApi _dataApi;
         private CancellationTokenSource? _cancellationTokenSource;
 
-        public override double BoardWidth => _dataApi.BoardWidth;
-        public override double BoardHeight => _dataApi.BoardHeight;
+        public override double BoardWidth => _dataApi.Board.Width;
+        public override double BoardHeight => _dataApi.Board.Height;
 
         public new static LogicLayerApi GetInstance(DataLayerAbstractApi dataApi)
         {
@@ -60,11 +60,46 @@ namespace Logic
             {
                 foreach (var ball in _dataApi.GetBalls())
                 {
-                    ball.Move(_dataApi.BoardWidth, _dataApi.BoardHeight);
+                    UpdateBallPositionAndVelocity(ball);
                 }
 
                 await Task.Delay(16, token);
             }
+        }
+
+        private void UpdateBallPositionAndVelocity(IBall ball)
+        {
+            var board = _dataApi.Board;
+            var nextX = ball.Position.X + ball.Velocity.X;
+            var nextY = ball.Position.Y + ball.Velocity.Y;
+
+            var newVelocityX = ball.Velocity.X;
+            var newVelocityY = ball.Velocity.Y;
+
+            if (nextX <= 0)
+            {
+                nextX = 0;
+                newVelocityX = -newVelocityX;
+            }
+            else if (nextX >= board.Width - ball.Diameter)
+            {
+                nextX = board.Width - ball.Diameter;
+                newVelocityX = -newVelocityX;
+            }
+                    
+            if (nextY <= 0)
+            {
+                nextY = 0;
+                newVelocityY = -newVelocityY;
+            }
+            else if (nextY >= board.Height - ball.Diameter)
+            {
+                nextY = board.Height - ball.Diameter;
+                newVelocityY = -newVelocityY;
+            }
+
+            ball.Velocity = new Vector2(newVelocityX, newVelocityY);
+            ball.Position = new Vector2(nextX, nextY);
         }
     }
 }
