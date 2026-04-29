@@ -11,7 +11,6 @@ public class DataLayerApiTests
     public DataLayerApiTests()
     {
         _dataApi = DataLayerAbstractApi.GetInstance(800.0, 400.0);
-
         _dataApi.RemoveAllBalls();
     }
 
@@ -27,6 +26,7 @@ public class DataLayerApiTests
     [Fact]
     public void RemoveAllBallsShouldClearCollectionWhenCalled()
     {
+        _dataApi.RemoveAllBalls();
         _dataApi.CreateBall();
         _dataApi.CreateBall();
         _dataApi.CreateBall();

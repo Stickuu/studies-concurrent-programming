@@ -7,8 +7,7 @@ namespace Data
         private readonly List<IBall> _balls = [];
         private readonly Random _random = new();
 
-        public override double BoardWidth { get; }
-        public override double BoardHeight { get; }
+        public override IBoard Board { get; }
 
         public new static DataLayerApi GetInstance(double boardWidth, double boardHeight)
         {
@@ -19,16 +18,14 @@ namespace Data
         
         private DataLayerApi(double boardWidth, double boardHeight)
         {
-            BoardHeight = boardHeight;
-            BoardWidth = boardWidth;
+            Board = new Board(boardWidth, boardHeight);
         }
 
         public override IBall CreateBall()
         {
-            var diameter = 30;
-            var x = _random.NextDouble() * (BoardWidth - diameter);
-            var y = _random.NextDouble() * (BoardHeight - diameter);
-            var ball = new Ball(new Vector2(x, y), diameter)
+            var x = _random.NextDouble() * (Board.Width - IBall.DIAMETER);
+            var y = _random.NextDouble() * (Board.Height - IBall.DIAMETER);
+            var ball = new Ball(new Vector2(x, y), IBall.DIAMETER)
             {
                 Velocity = new Vector2(
                     (_random.NextDouble() * 4) - 2,
