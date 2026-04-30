@@ -49,6 +49,7 @@ public class MainWindowViewModel : ViewModelBase
     private void StopSimulation()
     {
         _simulationModel.Stop();
+        Balls.Clear();
         ChangeSimulationRunningStatus(false);
     }
 

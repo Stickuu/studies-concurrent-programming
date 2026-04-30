@@ -1,3 +1,4 @@
+using System.ComponentModel;
 using Data;
 
 namespace Logic
@@ -7,7 +8,7 @@ namespace Logic
         private static LogicLayerApi? _instance;
         
         private readonly DataLayerAbstractApi _dataApi;
-        private CancellationTokenSource? _cancellationTokenSource;
+        private readonly object _physicsLock = new();
 
         public override double BoardWidth => _dataApi.Board.Width;
         public override double BoardHeight => _dataApi.Board.Height;
@@ -34,6 +35,7 @@ namespace Logic
 
         public override void RemoveAllBalls()
         {
+            StopSimulation();
             _dataApi.RemoveAllBalls();
         }
 
@@ -44,57 +46,121 @@ namespace Logic
 
         public override void StartSimulation()
         {
-            _cancellationTokenSource = new CancellationTokenSource();
-
-            Task.Run(() => SimulationLoop(_cancellationTokenSource.Token));
+            foreach (var ball in _dataApi.GetBalls())
+            {
+                ball.PropertyChanged += OnBallMoved;    
+            }
         }
 
         public override void StopSimulation()
         {
-            _cancellationTokenSource?.Cancel();
-        }
-
-        private async Task SimulationLoop(CancellationToken token)
-        {
-            while (!token.IsCancellationRequested)
+            foreach (var ball in _dataApi.GetBalls())
             {
-                await Task.Delay(16, token);
+                ball.PropertyChanged -= OnBallMoved;    
             }
         }
 
-        private void UpdateBallPositionAndVelocity(IBall ball)
+        private void OnBallMoved(object? sender, PropertyChangedEventArgs e)
         {
+            if (e.PropertyName != nameof(IBall.Position) || sender == null) return;
+
+            var ball = (IBall)sender;
+
+            CheckBoundaryCollisions(ball);
+            CheckBallCollisions(ball);
+        }
+
+        private void CheckBoundaryCollisions(IBall ball)
+        {
+            var position = ball.Position;
+            var velocity = ball.Velocity;
             var board = _dataApi.Board;
-            var nextX = ball.Position.X + ball.Velocity.X;
-            var nextY = ball.Position.Y + ball.Velocity.Y;
 
-            var newVelocityX = ball.Velocity.X;
-            var newVelocityY = ball.Velocity.Y;
+            if (position.X <= 0 && velocity.X < 0 || position.X >= board.Width - ball.Diameter && velocity.X > 0)
+            {
+                ball.Velocity = new Vector2(-velocity.X, velocity.Y);
+            }
 
-            if (nextX <= 0)
+            if (position.Y <= 0 && velocity.Y < 0 || position.Y >= board.Height - ball.Diameter && velocity.Y > 0)
             {
-                nextX = 0;
-                newVelocityX = -newVelocityX;
+                ball.Velocity = new Vector2(velocity.X, -velocity.Y);
             }
-            else if (nextX >= board.Width - ball.Diameter)
+        }
+
+        private void CheckBallCollisions(IBall currentBall)
+        {
+            lock (_physicsLock)
             {
-                nextX = board.Width - ball.Diameter;
-                newVelocityX = -newVelocityX;
-            }
+                foreach (var ball in _dataApi.GetBalls())
+                {
+                    if (currentBall == ball) continue;
+
+                    if (!AreBallsOverlapping(currentBall, ball, out var distance, out var dx, out var dy))
+                        continue;
                     
-            if (nextY <= 0)
-            {
-                nextY = 0;
-                newVelocityY = -newVelocityY;
+                    if (AreBallsMovingTowardsEachOther(currentBall, ball, dx, dy))
+                    {
+                        ApplyElasticCollision(currentBall, ball, distance, dx, dy);
+                    }
+                }
             }
-            else if (nextY >= board.Height - ball.Diameter)
-            {
-                nextY = board.Height - ball.Diameter;
-                newVelocityY = -newVelocityY;
-            }
+        }
 
-            ball.Velocity = new Vector2(newVelocityX, newVelocityY);
-            ball.Position = new Vector2(nextX, nextY);
+        private static bool AreBallsOverlapping(IBall ball1, IBall ball2, out double distance, out double dx, out double dy)
+        {
+            var radius1 = ball1.Diameter / 2;
+            var radius2 = ball2.Diameter / 2;
+
+            var center1X = ball1.Position.X + radius1;
+            var center1Y = ball1.Position.Y + radius1;
+            var center2X = ball2.Position.X + radius2;
+            var center2Y = ball2.Position.Y + radius2;
+
+            dx = center1X - center2X;
+            dy = center1Y - center2Y;
+            distance = Math.Sqrt(dx * dx + dy * dy);
+
+            return distance <= radius1 + radius2;
+        }
+
+        private static bool AreBallsMovingTowardsEachOther(IBall ball1, IBall ball2, double dx, double dy)
+        {
+            var relativeVelocityX = ball1.Velocity.X - ball2.Velocity.X;
+            var relativeVelocityY = ball1.Velocity.Y - ball2.Velocity.Y;
+            var dotProduct = relativeVelocityX * dx + relativeVelocityY * dy;
+
+            return dotProduct < 0;
+        }
+
+        private static void ApplyElasticCollision(IBall ball1, IBall ball2, double distance, double dx, double dy)
+        {
+            var velocity1 = ball1.Velocity;
+            var velocity2 = ball2.Velocity;
+            var mass1 = ball1.Mass;
+            var mass2 = ball2.Mass;
+
+            var collisionVectorX = dx / distance;
+            var collisionVectorY = dy / distance;
+            
+            // Compute velocity components along the normal and tangent vectors
+            var v1n = collisionVectorX * velocity1.X + collisionVectorY * velocity1.Y;
+            var v1t = -collisionVectorY * velocity1.X + collisionVectorX * velocity1.Y;
+            
+            var v2n = collisionVectorX * velocity2.X + collisionVectorY * velocity2.Y;
+            var v2t = -collisionVectorY * velocity2.X + collisionVectorX * velocity2.Y;
+            
+            // 1D Elastic collision equation along the normal
+            var v1nPrime = (v1n * (mass1 - mass2) + 2 * mass2 * v2n) / (mass1 + mass2);
+            var v2nPrime = (v2n * (mass2 - mass1) + 2 * mass1 * v1n) / (mass1 + mass2);
+            
+            // Recombine the normal and tangential components into the new velocity vectors
+            var newVelocity1X = v1nPrime * collisionVectorX - v1t * collisionVectorY;
+            var newVelocity1Y = v1nPrime * collisionVectorY + v1t * collisionVectorX;
+            ball1.Velocity = new Vector2(newVelocity1X, newVelocity1Y);
+            
+            var newVelocity2X = v2nPrime * collisionVectorX - v2t * collisionVectorY;
+            var newVelocity2Y = v2nPrime * collisionVectorY + v2t * collisionVectorX;
+            ball2.Velocity = new Vector2(newVelocity2X, newVelocity2Y);
         }
     }
 }
