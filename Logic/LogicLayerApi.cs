@@ -48,7 +48,8 @@ namespace Logic
         {
             foreach (var ball in _dataApi.GetBalls())
             {
-                ball.PropertyChanged += OnBallMoved;    
+                ball.PropertyChanged += OnBallMoved;
+                ball.StartMovement();
             }
         }
 
@@ -76,14 +77,34 @@ namespace Logic
             var velocity = ball.Velocity;
             var board = _dataApi.Board;
 
-            if (position.X <= 0 && velocity.X < 0 || position.X >= board.Width - ball.Diameter && velocity.X > 0)
+            double newVelX = velocity.X;
+            double newVelY = velocity.Y;
+            bool stateChanged = false;
+
+            if ((position.X <= 0 && velocity.X < 0) || (position.X >= board.Width - ball.Diameter && velocity.X > 0))
             {
-                ball.Velocity = new Vector2(-velocity.X, velocity.Y);
+                newVelX = -velocity.X;
+                stateChanged = true;
             }
 
-            if (position.Y <= 0 && velocity.Y < 0 || position.Y >= board.Height - ball.Diameter && velocity.Y > 0)
+            if ((position.Y <= 0 && velocity.Y < 0) || (position.Y >= board.Height - ball.Diameter && velocity.Y > 0))
             {
-                ball.Velocity = new Vector2(velocity.X, -velocity.Y);
+                newVelY = -velocity.Y;
+                stateChanged = true;
+            }
+
+            double clampedX = Math.Clamp(position.X, 0, board.Width - ball.Diameter);
+            double clampedY = Math.Clamp(position.Y, 0, board.Height - ball.Diameter);
+
+            if (Math.Abs(clampedX - position.X) > 0.001 || Math.Abs(clampedY - position.Y) > 0.001)
+            {
+                stateChanged = true;
+            }
+
+            if (stateChanged)
+            {
+                ball.Velocity = new Vector2(newVelX, newVelY);
+                ball.Position = new Vector2(clampedX, clampedY);
             }
         }
 

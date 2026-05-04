@@ -1,5 +1,9 @@
+using System;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Runtime.CompilerServices;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Data
 {
@@ -9,7 +13,8 @@ namespace Data
         private Vector2 _velocity;
         private readonly CancellationTokenSource _cancellationTokenSource;
         private readonly object _lockObject = new();
-        
+        private bool _isRunning;
+
         public double Diameter { get; }
         public double Mass { get; }
         public event PropertyChangedEventHandler? PropertyChanged;
@@ -28,17 +33,25 @@ namespace Data
         {
             get
             {
-                lock (_lockObject) { return _position; }
+                lock (_lockObject) return _position;
             }
             set
             {
+                bool hasChanged = false;
+
                 lock (_lockObject)
                 {
-                    if (_position == value) return;
-                    _position = value;
+                    if (_position != value)
+                    {
+                        _position = value;
+                        hasChanged = true;
+                    }
                 }
 
-                OnPropertyChanged();
+                if (hasChanged)
+                {
+                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Position)));
+                }
             }
         }
 
@@ -54,26 +67,45 @@ namespace Data
             }
         }
 
-        public void Dispose()
+        public void StartMovement()
         {
-            _cancellationTokenSource.Cancel();
-            _cancellationTokenSource.Dispose();
+            if (_isRunning) return;
+            _isRunning = true;
+
+            Task.Run(() => MoveLoop(_cancellationTokenSource.Token));
         }
 
         private async Task MoveLoop(CancellationToken token)
         {
+            var stopwatch = Stopwatch.StartNew();
+            double lastTime = stopwatch.Elapsed.TotalSeconds;
+
             try
             {
                 while (!token.IsCancellationRequested)
                 {
-                    Position = new Vector2(Position.X + Velocity.X, Position.Y + Velocity.Y);
+                    double currentTime = stopwatch.Elapsed.TotalSeconds;
+                    double deltaTime = currentTime - lastTime;
+                    lastTime = currentTime;
+
+                    Vector2 currentVelocity = Velocity;
+                    Vector2 currentPosition = Position;
+
+                    double newX = currentPosition.X + (currentVelocity.X * deltaTime);
+                    double newY = currentPosition.Y + (currentVelocity.Y * deltaTime);
+
+                    Position = new Vector2(newX, newY);
+
                     await Task.Delay(16, token);
                 }
             }
-            catch (TaskCanceledException)
-            {
-                
-            }
+            catch (TaskCanceledException) { }
+        }
+
+        public void Dispose()
+        {
+            _cancellationTokenSource.Cancel();
+            _cancellationTokenSource.Dispose();
         }
 
         private void OnPropertyChanged([CallerMemberName] string? propertyName = null)

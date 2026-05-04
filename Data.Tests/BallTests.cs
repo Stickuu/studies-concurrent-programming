@@ -1,5 +1,7 @@
 ﻿using Data;
 using Newtonsoft.Json.Bson;
+using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 using Xunit;
 
 namespace Data.Tests;
@@ -18,109 +20,35 @@ public class BallTests
     }
 
     [Fact]
-    public void MoveShouldChangePositionWhenVelocityIsNonZero()
+    public void PositionProperty_ShouldRaisePropertyChangedEvent_WhenChanged()
     {
         var ball = _dataApi.CreateBall();
+        bool eventRaised = false;
 
-        double startX = _random.NextDouble() * 600 + 100;
-        double startY = _random.NextDouble() * 200 + 100;
+        ball.PropertyChanged += (object? sender, PropertyChangedEventArgs e) =>
+        {
+            if (e.PropertyName == nameof(ball.Position))
+            {
+                eventRaised = true;
+            }
+        };
 
-        double velX = (_random.NextDouble() * 20) - 10;
-        double velY = (_random.NextDouble() * 20) - 10;
+        ball.Position = new Vector2(100, 100);
 
-        ball.Position = new Vector2(startX, startY);
-        ball.Velocity = new Vector2(velX, velY);
-
-        double expectedX = startX + velX;
-        double expectedY = startY + velY;
-
-        ball.Move(_boardWidth, _boardHeight);
-
-        Assert.Equal(expectedX, ball.Position.X, 5);
-        Assert.Equal(expectedY, ball.Position.Y, 5);
+        Assert.True(eventRaised, "Zdarzenie PropertyChanged nie zostało wywołane dla zmiany pozycji!");
     }
 
     [Fact]
-    public void MoveShouldClampToRightWallAndReverseVelocityWhenHitting()
+    public void PositionProperty_ShouldNotRaiseEvent_WhenValueIsTheSame()
     {
         var ball = _dataApi.CreateBall();
+        ball.Position = new Vector2(50, 50);
 
-        double velX = _random.NextDouble() * 15 + 5;
-        double velY = (_random.NextDouble() * 10) - 5;
+        bool eventRaised = false;
+        ball.PropertyChanged += (sender, e) => eventRaised = true;
 
-        double boundaryX = _boardWidth - ball.Diameter;
+        ball.Position = new Vector2(50, 50);
 
-        double startX = boundaryX - (velX * _random.NextDouble() * 0.8 + 0.1);
-        double startY = _random.NextDouble() * 200 + 100;
-
-        ball.Position = new Vector2(startX, startY);
-        ball.Velocity = new Vector2(velX, velY);
-
-        ball.Move(_boardWidth, _boardHeight);
-
-        Assert.Equal(boundaryX, ball.Position.X, 5);
-        Assert.True(ball.Velocity.X < 0);
-    }
-
-    [Fact]
-    public void MoveShouldClampToLeftWallAndReverseVelocityWhenHitting()
-    {
-        var ball = _dataApi.CreateBall();
-
-        double velX = -(_random.NextDouble() * 15 + 5);
-        double velY = (_random.NextDouble() * 10) - 5;
-
-        double startX = Math.Abs(velX) * _random.NextDouble() * 0.8;
-        double startY = _random.NextDouble() * 200 + 100;
-
-        ball.Position = new Vector2(startX, startY);
-        ball.Velocity = new Vector2(velX, velY);
-
-        ball.Move(_boardWidth, _boardHeight);
-
-        Assert.Equal(0, ball.Position.X, 5);
-        Assert.True(ball.Velocity.X > 0);
-    }
-
-    [Fact]
-    public void MoveShouldClampToBottomWallAndReverseVelocityWhenHitting()
-    {
-        var ball = _dataApi.CreateBall();
-
-        double velX = (_random.NextDouble() * 10) - 5;
-        double velY = _random.NextDouble() * 15 + 5;
-
-        double boundaryY = _boardHeight - ball.Diameter;
-
-        double startX = _random.NextDouble() * 600 + 100;
-        double startY = boundaryY - (velY * _random.NextDouble() * 0.8 + 0.1);
-
-        ball.Position = new Vector2(startX, startY);
-        ball.Velocity = new Vector2(velX, velY);
-
-        ball.Move(_boardWidth, _boardHeight);
-        
-        Assert.Equal(boundaryY, ball.Position.Y, 5);
-        Assert.True(ball.Velocity.Y < 0);
-    }
-
-    [Fact]
-    public void MoveShouldClampToTopWallAndReverseVelocityWhenHitting()
-    {
-        var ball = _dataApi.CreateBall();
-
-        double velX = (_random.NextDouble() * 10) - 5;
-        double velY = -(_random.NextDouble() * 15 + 5);
-
-        double startX = _random.NextDouble() * 600 + 100;
-        double startY = Math.Abs(velY) * _random.NextDouble() * 0.8;
-
-        ball.Position = new Vector2(startX, startY);
-        ball.Velocity = new Vector2(velX, velY);
-
-        ball.Move(_boardWidth, _boardHeight);
-
-        Assert.Equal(0, ball.Position.Y, 5);
-        Assert.True(ball.Velocity.Y > 0);
+        Assert.False(eventRaised, "Zdarzenie wywołało się niepotrzebnie dla tej samej wartości!");
     }
 }

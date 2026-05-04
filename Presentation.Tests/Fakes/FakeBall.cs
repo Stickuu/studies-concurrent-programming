@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel;
 using Data;
 
-namespace Logic.Tests.Fakes;
+namespace Presentation.Tests.Fakes;
 
 internal class FakeBall : IBall
 {
@@ -9,20 +9,15 @@ internal class FakeBall : IBall
     public Vector2 Velocity { get; set; } = new Vector2(0, 0);
     public double Diameter { get; set; } = 30;
     public double Mass { get; set; } = 10;
-    public bool IsMovementStarted { get; private set; } = false;
 
     public event PropertyChangedEventHandler? PropertyChanged;
 
-    public int MoveCount { get; private set; } = 0;
-
-    public void StartMovement() {
-        IsMovementStarted = true;
-    }
-
+    public void StartMovement() { }
     public void Dispose() { }
 
-    public void RaisePositionChanged()
+    public void RaisePositionChanged(double x, double y)
     {
+        Position = new Vector2(x, y);
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Position)));
     }
 }

@@ -14,9 +14,12 @@ public class MainWindowViewModel : ViewModelBase
     public IRelayCommand StartSimulationCommand { get; }
     public IRelayCommand StopSimulationCommand { get; }
 
-    public MainWindowViewModel()
+    public MainWindowViewModel() : this(new SimulationModel(800.0, 400.0))
     {
-        _simulationModel = new SimulationModel(800.0, 400.0);
+    }
+    public MainWindowViewModel(SimulationModel simulationModel)
+    {
+        _simulationModel = simulationModel;
         StartSimulationCommand = new RelayCommand(StartSimulation, () => !_isSimulationRunning);
         StopSimulationCommand = new RelayCommand(StopSimulation, () => _isSimulationRunning);
     }
@@ -24,13 +27,7 @@ public class MainWindowViewModel : ViewModelBase
     public int BallsCountToCreate
     {
         get => _ballsCountToCreate;
-        set
-        {
-            if (_ballsCountToCreate == value) return;
-            
-            _ballsCountToCreate = value;
-            OnPropertyChanged(nameof(BallsCountToCreate));
-        }
+        set => SetProperty(ref _ballsCountToCreate, value);
     }
 
     private void StartSimulation()

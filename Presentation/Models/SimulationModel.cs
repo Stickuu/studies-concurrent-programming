@@ -26,6 +26,7 @@ namespace Presentation.Models
 
         public void Stop()
         {
+            _logicApi.StopSimulation();
             _logicApi.RemoveAllBalls();
         }
 

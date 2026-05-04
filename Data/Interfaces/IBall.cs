@@ -8,5 +8,7 @@ namespace Data
         Vector2 Velocity { get; set; }
         double Diameter { get; }
         double Mass { get; }
+
+        void StartMovement();
     }
 }

@@ -10,7 +10,7 @@ namespace Data
 
         public static DataLayerAbstractApi GetInstance(double boardWidth, double boardHeight)
         {
-            return DataLayerApi.GetInstance(boardWidth, boardHeight);
+            return new DataLayerApi(boardWidth, boardHeight);
         }
     }
 }

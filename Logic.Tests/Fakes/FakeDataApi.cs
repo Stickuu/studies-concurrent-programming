@@ -9,8 +9,10 @@ internal class FakeDataApi : DataLayerAbstractApi
 {
     private readonly List<IBall> _balls = new();
 
-    public override double BoardWidth => 1000.0;
-    public override double BoardHeight => 500.0;
+    public override IBoard Board { get; } = new FakeBoard();
+
+    public double BoardWidth => Board.Width;
+    public double BoardHeight => Board.Height;
 
     public override IBall CreateBall()
     {

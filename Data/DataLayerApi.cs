@@ -11,12 +11,10 @@ namespace Data
 
         public new static DataLayerApi GetInstance(double boardWidth, double boardHeight)
         {
-            _instance ??= new DataLayerApi(boardWidth, boardHeight);
-
-            return _instance;
+            return new DataLayerApi(boardWidth, boardHeight);
         }
-        
-        private DataLayerApi(double boardWidth, double boardHeight)
+
+        internal DataLayerApi(double boardWidth, double boardHeight)
         {
             Board = new Board(boardWidth, boardHeight);
         }
@@ -33,8 +31,8 @@ namespace Data
             var ball = new Ball(new Vector2(x, y), diameter, mass)
             {
                 Velocity = new Vector2(
-                    (_random.NextDouble() * 4) - 2,
-                    (_random.NextDouble() * 4) - 2
+                    (_random.NextDouble() * 100) - 50,
+                    (_random.NextDouble() * 100) - 50
                 )
             };
             
