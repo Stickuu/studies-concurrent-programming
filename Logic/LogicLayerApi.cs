@@ -68,8 +68,11 @@ namespace Logic
 
             var ball = (IBall)sender;
 
-            CheckBoundaryCollisions(ball);
-            CheckBallCollisions(ball);
+            lock (_physicsLock)
+            {
+                CheckBoundaryCollisions(ball);
+                CheckBallCollisions(ball);
+            }
         }
 
         private void CheckBoundaryCollisions(IBall ball)
@@ -99,23 +102,26 @@ namespace Logic
             if (!velocityChanged) return;
 
             ball.Velocity = new Vector2(newVelX, newVelY);
+
+            ball.PropertyChanged -= OnBallMoved;
+            double clampedX = Math.Clamp(position.X, 0, board.Width - ball.Diameter);
+            double clampedY = Math.Clamp(position.Y, 0, board.Height - ball.Diameter);
+            ball.Position = new Vector2(clampedX, clampedY);
+            ball.PropertyChanged += OnBallMoved;
         }
 
         private void CheckBallCollisions(IBall currentBall)
         {
-            lock (_physicsLock)
+            foreach (var ball in _dataApi.GetBalls())
             {
-                foreach (var ball in _dataApi.GetBalls())
-                {
-                    if (currentBall == ball) continue;
+                if (currentBall == ball) continue;
 
-                    if (!AreBallsOverlapping(currentBall, ball, out var distance, out var dx, out var dy))
-                        continue;
+                if (!AreBallsOverlapping(currentBall, ball, out var distance, out var dx, out var dy))
+                    continue;
                     
-                    if (AreBallsMovingTowardsEachOther(currentBall, ball, dx, dy))
-                    {
-                        ApplyElasticCollision(currentBall, ball, distance, dx, dy);
-                    }
+                if (AreBallsMovingTowardsEachOther(currentBall, ball, dx, dy))
+                {
+                    ApplyElasticCollision(currentBall, ball, distance, dx, dy);
                 }
             }
         }

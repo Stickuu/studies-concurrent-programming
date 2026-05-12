@@ -34,8 +34,8 @@ namespace Data
             var ball = new Ball(new Vector2(x, y), diameter, mass)
             {
                 Velocity = new Vector2(
-                    (_random.NextDouble() * 100) - 50,
-                    (_random.NextDouble() * 100) - 50
+                    (_random.NextDouble() * 300) - 250,
+                    (_random.NextDouble() * 300) - 250
                 )
             };
             
