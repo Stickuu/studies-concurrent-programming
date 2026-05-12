@@ -24,7 +24,6 @@ namespace Data.Entities
             Mass = mass;
 
             _cancellationTokenSource = new CancellationTokenSource();
-            Task.Run(() => MoveLoop(_cancellationTokenSource.Token));
         }
 
         public Vector2 Position
