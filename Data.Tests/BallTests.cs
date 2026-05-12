@@ -48,4 +48,21 @@ public class BallTests
 
         Assert.False(eventRaised, "Zdarzenie wywołało się niepotrzebnie dla tej samej wartości!");
     }
+
+    [Fact]
+    public async Task MoveLoop_ShouldCalculatePositionBasedOnRealTime_UsingDeltaTime()
+    {
+        var ball = _dataApi.CreateBall();
+
+        ball.Position = new Vector2(0, 0);
+        ball.Velocity = new Vector2(200, 0);
+
+        ball.StartMovement();
+
+        await Task.Delay(500);
+
+        ball.Dispose();
+
+        Assert.True(ball.Position.X > 80 && ball.Position.X < 120);
+    }
 }
