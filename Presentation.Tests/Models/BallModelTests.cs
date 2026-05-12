@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel;
+using Data.Interfaces;
 using Presentation.Models;
 using Presentation.Tests.Fakes;
 using Xunit;
@@ -10,7 +11,7 @@ public class BallModelTests
     [Fact]
     public void BallModelShouldScaleCoordinatesAndDiameterCorrectly()
     {
-        var fakeBall = new FakeBall { Position = new Data.Vector2(100, 50), Diameter = 30 };
+        var fakeBall = new FakeBall { Position = new Vector2(100, 50), Diameter = 30 };
         double scale = 0.5;
 
         var ballModel = new BallModel(fakeBall, scale);

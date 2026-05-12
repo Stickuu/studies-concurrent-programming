@@ -1,11 +1,9 @@
-using System;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
-using System.Threading;
-using System.Threading.Tasks;
+using Data.Interfaces;
 
-namespace Data
+namespace Data.Entities
 {
     internal sealed class Ball : IBall
     {

@@ -1,4 +1,4 @@
-namespace Data
+namespace Data.Interfaces
 {
     public interface IBoard
     {

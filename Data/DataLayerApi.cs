@@ -1,3 +1,6 @@
+using Data.Entities;
+using Data.Interfaces;
+
 namespace Data
 {
     internal class DataLayerApi : DataLayerAbstractApi

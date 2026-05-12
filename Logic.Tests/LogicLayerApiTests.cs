@@ -1,8 +1,5 @@
 ﻿using Logic.Tests.Fakes;
-using System;
-using System.Collections.Generic;
-using System.Text;
-using Data;
+using Data.Interfaces;
 
 namespace Logic.Tests;
 

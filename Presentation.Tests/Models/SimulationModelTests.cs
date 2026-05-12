@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using Data.Interfaces;
 using Presentation.Models;
 using Presentation.Tests.Fakes;
 using Xunit;
@@ -28,7 +29,7 @@ public class SimulationModelTests
 
         fakeApi.CreateBalls(1);
         var fakeBall = (FakeBall)fakeApi.GetBalls().First();
-        fakeBall.Position = new Data.Vector2(200, 100);
+        fakeBall.Position = new Vector2(200, 100);
         fakeBall.Diameter = 40;
 
         var ballModels = simulationModel.GetBalls().ToList();

@@ -1,6 +1,6 @@
 using System.ComponentModel;
 
-namespace Data
+namespace Data.Interfaces
 {
     public interface IBall : INotifyPropertyChanged, IDisposable
     {

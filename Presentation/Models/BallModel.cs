@@ -1,5 +1,5 @@
 using System.ComponentModel;
-using Data;
+using Data.Interfaces;
 
 namespace Presentation.Models
 {

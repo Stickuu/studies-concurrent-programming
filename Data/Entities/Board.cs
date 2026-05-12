@@ -1,4 +1,6 @@
-namespace Data
+using Data.Interfaces;
+
+namespace Data.Entities
 {
     internal sealed class Board : IBoard
     {

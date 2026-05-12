@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using Logic;
 using Data;
+using Data.Interfaces;
 
 namespace Presentation.Tests.Fakes;
 
