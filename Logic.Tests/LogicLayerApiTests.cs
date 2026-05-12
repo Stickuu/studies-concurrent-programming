@@ -127,17 +127,15 @@ public class LogicLayerApiTests
         var rand = new Random();
 
         ball.Position = new Vector2(0, 0);
-
-        double velX = -(rand.NextDouble() * 50 + 10);
-        double velY = -(rand.NextDouble() * 50 + 10);
-        ball.Velocity = new Vector2(velX, velY);
+        var velocity = -(rand.NextDouble() * 50 + 10);
+        ball.Velocity = new Vector2(velocity, velocity);
 
         _logicApi.StartSimulation();
 
         ball.RaisePositionChanged();
 
-        Assert.Equal(-velX, ball.Velocity.X);
-        Assert.Equal(-velY, ball.Velocity.Y);
+        Assert.Equal(-velocity, ball.Velocity.X);
+        Assert.Equal(-velocity, ball.Velocity.Y);
     }
 
     [Fact]
