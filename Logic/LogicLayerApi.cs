@@ -30,12 +30,15 @@ namespace Logic
             {
                 _dataApi.CreateBall();
             }
+            
+            _dataApi.Logger.LogMessage($"SYSTEM: Created {count} new balls.");
         }
 
         public override void RemoveAllBalls()
         {
             StopSimulation();
             _dataApi.RemoveAllBalls();
+            _dataApi.Logger.LogMessage($"SYSTEM: Removed all balls from the board.");
         }
 
         public override IEnumerable<IBall> GetBalls()
@@ -47,7 +50,9 @@ namespace Logic
         {
             var balls = _dataApi.GetBalls().ToList();
             if (balls.Count == 0) return;
-
+            
+            _dataApi.Logger.LogMessage($"SYSTEM: Simulation Started with {balls.Count} balls.");
+            
             _physicsBarrier = new Barrier(balls.Count, (barrier) =>
             {
                 PerformPhysicsCalculations(balls);
@@ -75,6 +80,8 @@ namespace Logic
             // Safely destroy the barrier so threads aren't trapped if we stop
             _physicsBarrier.Dispose();
             _physicsBarrier = null;
+            
+            _dataApi.Logger.LogMessage($"SYSTEM: Simulation Stopped.");
         }
         
         private void PerformPhysicsCalculations(List<IBall> balls)
@@ -122,6 +129,9 @@ namespace Logic
             if (velocityChanged)
             {
                 ball.Velocity = new Vector2(newVelX, newVelY);
+                _dataApi.Logger.LogMessage(
+                    $"BOUNCE: Ball {ball.Id} hit the wall. " +
+                    $"New Velocity: ({newVelX:F2}, {newVelY:F2})");
             }
 
             // Clamp position so they don't get stuck outside the bounds
@@ -138,6 +148,8 @@ namespace Logic
             if (AreBallsMovingTowardsEachOther(currentBall, otherBall, dx, dy))
             {
                 ApplyElasticCollision(currentBall, otherBall, distance, dx, dy);
+                _dataApi.Logger.LogMessage(
+                    $"COLLISION: Ball {currentBall.Id} collided with Ball {otherBall.Id}.");
             }
         }
 

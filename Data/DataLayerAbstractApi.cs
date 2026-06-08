@@ -6,6 +6,7 @@ namespace Data
     public abstract class DataLayerAbstractApi
     {
         public abstract IBoard Board { get; }
+        public abstract IDiagnosticsLogger Logger { get; }
 
         public abstract IBall CreateBall();
         public abstract IEnumerable<IBall> GetBalls();

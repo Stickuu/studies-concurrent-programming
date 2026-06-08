@@ -10,18 +10,22 @@ namespace Data.Entities
 {
     internal sealed class Ball : IBall
     {
+        private static readonly Random _random = new();
+        
         private Vector2 _position;
         private Vector2 _velocity;
         private readonly CancellationTokenSource _cancellationTokenSource;
         private readonly object _lockObject = new();
         private bool _isRunning;
 
+        public int Id { get; }
         public double Diameter { get; }
         public double Mass { get; }
         public event PropertyChangedEventHandler? PropertyChanged;
 
         public Ball(Vector2 position, double diameter, double mass)
         {
+            Id = _random.Next(1000, 10000);
             _position = position;
             Diameter = diameter;
             Mass = mass;

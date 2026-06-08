@@ -5,6 +5,7 @@ namespace Data.Interfaces
 {
     public interface IBall : INotifyPropertyChanged, IDisposable
     {
+        int Id { get; }
         Vector2 Position { get; set; }
         Vector2 Velocity { get; set; }
         double Diameter { get; }

@@ -13,6 +13,8 @@ namespace Data
         private readonly Random _random = new();
 
         public override IBoard Board { get; }
+        
+        public override IDiagnosticsLogger Logger { get; } = new DiagnosticsLogger();
 
         public new static DataLayerApi GetInstance(double boardWidth, double boardHeight)
         {
