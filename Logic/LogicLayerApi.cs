@@ -48,10 +48,11 @@ namespace Logic
             var balls = _dataApi.GetBalls().ToList();
             if (balls.Count == 0) return;
 
-            // Initialize the barrier with the number of balls
             _physicsBarrier = new Barrier(balls.Count, (barrier) =>
             {
                 PerformPhysicsCalculations(balls);
+                
+                Thread.Sleep(16);
             });
 
             foreach (var ball in balls)
@@ -62,9 +63,7 @@ namespace Logic
                     { 
                         _physicsBarrier?.SignalAndWait(); 
                     }
-                    catch (ObjectDisposedException) {}
-                    catch (BarrierPostPhaseException) {}
-                    catch (InvalidOperationException) {}
+                    catch (Exception) { /* Ignored when stopping simulation */ }
                 });
             }
         }

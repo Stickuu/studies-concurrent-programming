@@ -72,7 +72,12 @@ namespace Data.Entities
             if (_isRunning) return;
             _isRunning = true;
 
-            Task.Run(() => MoveLoop(_cancellationTokenSource.Token, syncAction));
+            Task.Factory.StartNew(
+                () => MoveLoop(_cancellationTokenSource.Token, syncAction),
+                _cancellationTokenSource.Token,
+                TaskCreationOptions.LongRunning,
+                TaskScheduler.Default
+            );
         }
 
         private async Task MoveLoop(CancellationToken token, Action syncAction)
@@ -98,8 +103,6 @@ namespace Data.Entities
                     
                     // Rendezvous point
                     syncAction?.Invoke();
-
-                    await Task.Delay(16, token);
                 }
             }
             catch (TaskCanceledException) { }
