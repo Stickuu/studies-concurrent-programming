@@ -1,6 +1,9 @@
+using System;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
+using System.Threading;
+using System.Threading.Tasks;
 using Data.Interfaces;
 
 namespace Data.Entities
@@ -47,7 +50,7 @@ namespace Data.Entities
 
                 if (hasChanged)
                 {
-                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Position)));
+                    OnPropertyChanged();
                 }
             }
         }
@@ -64,34 +67,37 @@ namespace Data.Entities
             }
         }
 
-        public void StartMovement()
+        public void StartMovement(Action syncAction)
         {
             if (_isRunning) return;
             _isRunning = true;
 
-            Task.Run(() => MoveLoop(_cancellationTokenSource.Token));
+            Task.Run(() => MoveLoop(_cancellationTokenSource.Token, syncAction));
         }
 
-        private async Task MoveLoop(CancellationToken token)
+        private async Task MoveLoop(CancellationToken token, Action syncAction)
         {
             var stopwatch = Stopwatch.StartNew();
-            double lastTime = stopwatch.Elapsed.TotalSeconds;
+            var lastTime = stopwatch.Elapsed.TotalSeconds;
 
             try
             {
                 while (!token.IsCancellationRequested)
                 {
-                    double currentTime = stopwatch.Elapsed.TotalSeconds;
-                    double deltaTime = currentTime - lastTime;
+                    var currentTime = stopwatch.Elapsed.TotalSeconds;
+                    var deltaTime = currentTime - lastTime;
                     lastTime = currentTime;
 
-                    Vector2 currentVelocity = Velocity;
-                    Vector2 currentPosition = Position;
+                    var currentVelocity = Velocity;
+                    var currentPosition = Position;
 
-                    double newX = currentPosition.X + (currentVelocity.X * deltaTime);
-                    double newY = currentPosition.Y + (currentVelocity.Y * deltaTime);
+                    var newX = currentPosition.X + (currentVelocity.X * deltaTime);
+                    var newY = currentPosition.Y + (currentVelocity.Y * deltaTime);
 
                     Position = new Vector2(newX, newY);
+                    
+                    // Rendezvous point
+                    syncAction?.Invoke();
 
                     await Task.Delay(16, token);
                 }

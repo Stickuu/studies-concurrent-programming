@@ -1,4 +1,5 @@
 using System.ComponentModel;
+using Avalonia.Threading;
 using Data.Interfaces;
 
 namespace Presentation.Models
@@ -25,8 +26,11 @@ namespace Presentation.Models
         {
             if (e.PropertyName != nameof(IBall.Position)) return;
             
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(X)));
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Y)));
+            Dispatcher.UIThread.Post(() =>
+            {
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(X)));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Y)));
+            });
         }
             
         

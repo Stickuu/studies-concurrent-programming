@@ -1,4 +1,3 @@
-using System.ComponentModel;
 using Data;
 using Data.Interfaces;
 
@@ -7,9 +6,9 @@ namespace Logic
     internal class LogicLayerApi : LogicLayerAbstractApi
     {
         private static LogicLayerApi? _instance;
-        
         private readonly DataLayerAbstractApi _dataApi;
-        private readonly object _physicsLock = new();
+        
+        private Barrier? _physicsBarrier;
 
         public override double BoardWidth => _dataApi.Board.Width;
         public override double BoardHeight => _dataApi.Board.Height;
@@ -17,7 +16,6 @@ namespace Logic
         public new static LogicLayerApi GetInstance(DataLayerAbstractApi dataApi)
         {
             _instance ??= new LogicLayerApi(dataApi);
-
             return _instance;
         }
         
@@ -47,31 +45,54 @@ namespace Logic
 
         public override void StartSimulation()
         {
-            foreach (var ball in _dataApi.GetBalls())
+            var balls = _dataApi.GetBalls().ToList();
+            if (balls.Count == 0) return;
+
+            // Initialize the barrier with the number of balls
+            _physicsBarrier = new Barrier(balls.Count, (barrier) =>
             {
-                ball.PropertyChanged += OnBallMoved;
-                ball.StartMovement();
+                PerformPhysicsCalculations(balls);
+            });
+
+            foreach (var ball in balls)
+            {
+                ball.StartMovement(() => 
+                {
+                    try 
+                    { 
+                        _physicsBarrier?.SignalAndWait(); 
+                    }
+                    catch (ObjectDisposedException) {}
+                    catch (BarrierPostPhaseException) {}
+                    catch (InvalidOperationException) {}
+                });
             }
         }
 
         public override void StopSimulation()
         {
-            foreach (var ball in _dataApi.GetBalls())
-            {
-                ball.PropertyChanged -= OnBallMoved;    
-            }
+            if (_physicsBarrier == null) return;
+            
+            // Safely destroy the barrier so threads aren't trapped if we stop
+            _physicsBarrier.Dispose();
+            _physicsBarrier = null;
         }
-
-        private void OnBallMoved(object? sender, PropertyChangedEventArgs e)
+        
+        private void PerformPhysicsCalculations(List<IBall> balls)
         {
-            if (e.PropertyName != nameof(IBall.Position) || sender == null) return;
-
-            var ball = (IBall)sender;
-
-            lock (_physicsLock)
+            // Update boundary collisions
+            foreach (var ball in balls)
             {
                 CheckBoundaryCollisions(ball);
-                CheckBallCollisions(ball);
+            }
+
+            // Check collisions between all unique pairs
+            for (int i = 0; i < balls.Count; i++)
+            {
+                for (int j = i + 1; j < balls.Count; j++)
+                {
+                    CheckBallCollisions(balls[i], balls[j]);
+                }
             }
         }
 
@@ -99,30 +120,25 @@ namespace Logic
                 velocityChanged = true;
             }
 
-            if (!velocityChanged) return;
+            if (velocityChanged)
+            {
+                ball.Velocity = new Vector2(newVelX, newVelY);
+            }
 
-            ball.Velocity = new Vector2(newVelX, newVelY);
-
-            ball.PropertyChanged -= OnBallMoved;
+            // Clamp position so they don't get stuck outside the bounds
             double clampedX = Math.Clamp(position.X, 0, board.Width - ball.Diameter);
             double clampedY = Math.Clamp(position.Y, 0, board.Height - ball.Diameter);
             ball.Position = new Vector2(clampedX, clampedY);
-            ball.PropertyChanged += OnBallMoved;
         }
 
-        private void CheckBallCollisions(IBall currentBall)
+        private void CheckBallCollisions(IBall currentBall, IBall otherBall)
         {
-            foreach (var ball in _dataApi.GetBalls())
+            if (!AreBallsOverlapping(currentBall, otherBall, out var distance, out var dx, out var dy))
+                return;
+                
+            if (AreBallsMovingTowardsEachOther(currentBall, otherBall, dx, dy))
             {
-                if (currentBall == ball) continue;
-
-                if (!AreBallsOverlapping(currentBall, ball, out var distance, out var dx, out var dy))
-                    continue;
-                    
-                if (AreBallsMovingTowardsEachOther(currentBall, ball, dx, dy))
-                {
-                    ApplyElasticCollision(currentBall, ball, distance, dx, dy);
-                }
+                ApplyElasticCollision(currentBall, otherBall, distance, dx, dy);
             }
         }
 

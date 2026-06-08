@@ -1,3 +1,4 @@
+using System;
 using System.ComponentModel;
 
 namespace Data.Interfaces
@@ -9,6 +10,6 @@ namespace Data.Interfaces
         double Diameter { get; }
         double Mass { get; }
 
-        void StartMovement();
+        void StartMovement(Action syncAction);
     }
 }
