@@ -77,14 +77,14 @@ namespace Data.Entities
             _isRunning = true;
 
             Task.Factory.StartNew(
-                () => MoveLoop(_cancellationTokenSource.Token, syncAction),
+                () => MoveLoop(syncAction, _cancellationTokenSource.Token),
                 _cancellationTokenSource.Token,
                 TaskCreationOptions.LongRunning,
                 TaskScheduler.Default
             );
         }
 
-        private async Task MoveLoop(CancellationToken token, Action syncAction)
+        private void MoveLoop( Action syncAction, CancellationToken token)
         {
             var stopwatch = Stopwatch.StartNew();
             var lastTime = stopwatch.Elapsed.TotalSeconds;
