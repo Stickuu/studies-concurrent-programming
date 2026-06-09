@@ -250,11 +250,15 @@ public class LogicLayerApiTests
         _logicApi.CreateBalls(1);
         var ball = (FakeBall)_logicApi.GetBalls().First();
 
-        ball.Position = new Vector2(0, 0);
+        ball.Position = new Vector2(100, 100);
         ball.Velocity = new Vector2(-10, -10);
 
         _logicApi.StartSimulation();
+
         _logicApi.StopSimulation();
+
+        ball.Position = new Vector2(0, 0);
+        ball.Velocity = new Vector2(-10, -10);
 
         await Task.Delay(50);
 
