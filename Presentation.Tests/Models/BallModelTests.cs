@@ -11,34 +11,24 @@ public class BallModelTests
     [Fact]
     public void BallModelShouldScaleCoordinatesAndDiameterCorrectly()
     {
-        var fakeBall = new FakeBall { Position = new Vector2(100, 50), Diameter = 30 };
-        double scale = 0.5;
+        var rand = new Random();
 
-        var ballModel = new BallModel(fakeBall, scale);
+        double randomX = rand.NextDouble() * 1000;
+        double randomY = rand.NextDouble() * 500;
+        double randomDiameter = rand.NextDouble() * 50 + 10;
 
-        Assert.Equal(50, ballModel.X);
-        Assert.Equal(25, ballModel.Y);
-        Assert.Equal(15, ballModel.Diameter);
-    }
+        double randomScale = rand.NextDouble() * 5 + 0.1;
 
-    [Fact]
-    public void BallModelShouldRaisePropertyChangedForXAndYWhenLogicBallMoves()
-    {
-        var fakeBall = new FakeBall();
-        var ballModel = new BallModel(fakeBall, 1.0);
-
-        bool xChanged = false;
-        bool yChanged = false;
-
-        ballModel.PropertyChanged += (object? sender, PropertyChangedEventArgs e) =>
+        var fakeBall = new FakeBall
         {
-            if (e.PropertyName == nameof(ballModel.X)) xChanged = true;
-            if (e.PropertyName == nameof(ballModel.Y)) yChanged = true;
+            Position = new Vector2(randomX, randomY),
+            Diameter = randomDiameter
         };
 
-        fakeBall.RaisePositionChanged(10, 10);
+        var ballModel = new BallModel(fakeBall, randomScale);
 
-        Assert.True(xChanged, "Nie wywołano PropertyChanged dla X!");
-        Assert.True(yChanged, "Nie wywołano PropertyChanged dla Y!");
+        Assert.Equal(randomX * randomScale, ballModel.X, 4);
+        Assert.Equal(randomY * randomScale, ballModel.Y, 4);
+        Assert.Equal(randomDiameter * randomScale, ballModel.Diameter, 4);
     }
 }

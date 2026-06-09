@@ -17,7 +17,7 @@ public class BallTests
     }
 
     [Fact]
-    public void PositionProperty_ShouldRaisePropertyChangedEvent_WhenChanged()
+    public void PositionPropertyShouldRaisePropertyChangedEventWhenChanged()
     {
         var ball = _dataApi.CreateBall();
         bool eventRaised = false;
@@ -36,7 +36,7 @@ public class BallTests
     }
 
     [Fact]
-    public void PositionProperty_ShouldNotRaiseEvent_WhenValueIsTheSame()
+    public void PositionPropertyShouldNotRaiseEventWhenValueIsTheSame()
     {
         var ball = _dataApi.CreateBall();
         ball.Position = new Vector2(50, 50);
@@ -50,14 +50,14 @@ public class BallTests
     }
 
     [Fact]
-    public async Task MoveLoop_ShouldCalculatePositionBasedOnRealTime_UsingDeltaTime()
+    public async Task MoveLoopShouldCalculatePositionBasedOnRealTimeUsingDeltaTime()
     {
         var ball = _dataApi.CreateBall();
 
         ball.Position = new Vector2(0, 0);
         ball.Velocity = new Vector2(200, 0);
 
-        ball.StartMovement();
+        ball.StartMovement(() => { });
 
         await Task.Delay(500);
 

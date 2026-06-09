@@ -12,6 +12,8 @@ internal class FakeDataApi : DataLayerAbstractApi
 
     public override IBoard Board { get; } = new FakeBoard();
 
+    public override IDiagnosticsLogger Logger { get; } = new FakeLogger();
+
     public double BoardWidth => Board.Width;
     public double BoardHeight => Board.Height;
 
@@ -31,4 +33,15 @@ internal class FakeDataApi : DataLayerAbstractApi
     {
         _balls.Clear();
     }
+}
+
+internal class FakeLogger : IDiagnosticsLogger
+{
+    public List<string> LoggedMessages { get; } = new();
+
+    public void LogMessage(string message)
+    {
+        LoggedMessages.Add(message);
+    }
+    public void Dispose() {}
 }
