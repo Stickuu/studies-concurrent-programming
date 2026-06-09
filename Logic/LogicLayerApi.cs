@@ -56,7 +56,6 @@ namespace Logic
             _physicsBarrier = new Barrier(balls.Count, (barrier) =>
             {
                 PerformPhysicsCalculations(balls);
-                
                 Thread.Sleep(16);
             });
 
@@ -64,11 +63,18 @@ namespace Logic
             {
                 ball.StartMovement(() => 
                 {
-                    try 
-                    { 
-                        _physicsBarrier?.SignalAndWait(); 
+                    var currentBarrier = _physicsBarrier;
+                    
+                    if (currentBarrier == null) throw new OperationCanceledException();
+
+                    try
+                    {
+                        _physicsBarrier?.SignalAndWait();
                     }
-                    catch (Exception) { /* Ignored when stopping simulation */ }
+                    catch (Exception)
+                    {
+                        throw new OperationCanceledException();
+                    }
                 });
             }
         }
