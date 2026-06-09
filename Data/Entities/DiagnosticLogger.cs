@@ -4,7 +4,7 @@ using Data.Interfaces;
 
 namespace Data.Entities
 {
-    internal sealed class DiagnosticsLogger : IDiagnosticsLogger
+    public sealed class DiagnosticsLogger : IDiagnosticsLogger
     {
         private readonly string _filePath;
         private readonly ConcurrentQueue<string> _logQueue = new();
@@ -14,12 +14,14 @@ namespace Data.Entities
         public DiagnosticsLogger()
         {
             var timestamp = DateTime.Now.ToString("yyyyMMdd_HHmmss");
-            _filePath = $"Diagnostics_{timestamp}.log";
-            
+            var uniqueId = Guid.NewGuid().ToString("N").Substring(0, 8);
+
+            _filePath = $"Diagnostics_{timestamp}_{uniqueId}.log";
+
             _writerTask = Task.Factory.StartNew(
-                WriteLoop, 
-                _cts.Token, 
-                TaskCreationOptions.LongRunning, 
+                WriteLoop,
+                _cts.Token,
+                TaskCreationOptions.LongRunning,
                 TaskScheduler.Default);
         }
 
