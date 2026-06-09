@@ -21,10 +21,11 @@ internal class FakeBall : IBall
 
     private readonly CancellationTokenSource _cts = new();
 
-    public void StartMovement(Action syncAction) {
+    public void StartMovement(Action syncAction)
+    {
         IsMovementStarted = true;
 
-        Task.Run(() =>
+        Task.Factory.StartNew(() =>
         {
             try
             {
@@ -34,11 +35,17 @@ internal class FakeBall : IBall
                     syncAction?.Invoke();
                 }
             }
-            catch (Exception){}
-        }, _cts.Token);
+            catch (Exception) {}
+        }, _cts.Token, TaskCreationOptions.LongRunning, TaskScheduler.Default);
     }
 
-    public void Dispose() { _cts.Cancel(); _cts.Dispose(); }
+    public void Dispose()
+    {
+        if (!_cts.IsCancellationRequested)
+        {
+            _cts.Cancel();
+        }
+    }
 
     public void RaisePositionChanged()
     {

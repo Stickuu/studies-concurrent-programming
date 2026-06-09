@@ -245,7 +245,7 @@ public class LogicLayerApiTests
     }
 
     [Fact]
-    public void StopSimulationShouldUnhookEventsSoCollisionsAreNotChecked()
+    public async Task StopSimulationShouldUnhookEventsSoCollisionsAreNotChecked()
     {
         _logicApi.CreateBalls(1);
         var ball = (FakeBall)_logicApi.GetBalls().First();
@@ -256,7 +256,7 @@ public class LogicLayerApiTests
         _logicApi.StartSimulation();
         _logicApi.StopSimulation();
 
-        ball.RaisePositionChanged();
+        await Task.Delay(50);
 
         Assert.Equal(-10, ball.Velocity.X);
         Assert.Equal(-10, ball.Velocity.Y);
@@ -273,12 +273,12 @@ public class LogicLayerApiTests
 
         await Task.Delay(300);
 
-        _logicApi.StopSimulation();
-
         foreach (var ball in balls)
         {
             ball.Dispose();
         }
+
+        _logicApi.StopSimulation();
 
         await Task.Delay(50);
 

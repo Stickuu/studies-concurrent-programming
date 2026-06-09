@@ -31,6 +31,11 @@ internal class FakeDataApi : DataLayerAbstractApi
 
     public override void RemoveAllBalls()
     {
+        foreach (var ball in _balls)
+        {
+            ball.Dispose();
+        }
+
         _balls.Clear();
     }
 }
