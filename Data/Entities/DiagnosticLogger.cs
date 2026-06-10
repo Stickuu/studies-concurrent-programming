@@ -6,11 +6,15 @@ namespace Data.Entities
 {
     public sealed class DiagnosticsLogger : IDiagnosticsLogger
     {
+        private const int MaxQueueSize = 50000;
+        
         private readonly string _filePath;
         private readonly ConcurrentQueue<string> _logQueue = new();
         private readonly Task _writerTask;
         private readonly CancellationTokenSource _cts = new();
 
+        private int _droppedLogsCount = 0;
+        
         public DiagnosticsLogger()
         {
             var timestamp = DateTime.Now.ToString("yyyyMMdd_HHmmss");
@@ -28,7 +32,13 @@ namespace Data.Entities
         // PRODUCER: Physics threads call this, it never blocks
         public void LogMessage(string message)
         {
-            if (!_cts.Token.IsCancellationRequested)
+            if (_cts.Token.IsCancellationRequested) return;
+            
+            if (_logQueue.Count >= MaxQueueSize)
+            {
+                Interlocked.Increment(ref _droppedLogsCount);
+            }
+            else
             {
                 var log = $"[{DateTime.Now:HH:mm:ss.fff}] {message}";
                 _logQueue.Enqueue(log);
@@ -42,13 +52,19 @@ namespace Data.Entities
             {
                 while (!_cts.Token.IsCancellationRequested)
                 {
-                    if (_logQueue.IsEmpty)
+                    if (_logQueue.IsEmpty && _droppedLogsCount == 0)
                     {
                         await Task.Delay(50, _cts.Token);
                         continue;
                     }
-                    
+
                     using var writer = new StreamWriter(_filePath, append: true, Encoding.ASCII);
+                    
+                    int droppedCount = Interlocked.Exchange(ref _droppedLogsCount, 0);
+                    if (droppedCount > 0)
+                    {
+                        await writer.WriteLineAsync($"[{DateTime.Now:HH:mm:ss.fff}] SYSTEM WARNING: Hard drive is to slow. Dumped {droppedCount} logs");
+                    }
                     
                     while (_logQueue.TryDequeue(out var logMessage))
                     {
